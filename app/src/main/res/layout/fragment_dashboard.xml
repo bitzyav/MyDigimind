@@ -131,7 +131,7 @@
                         android:textSize="16sp"/>
 
                     <CheckBox
-                        android:id="@+id/checkSatuday"
+                        android:id="@+id/checkSaturday"
                         android:layout_marginLeft="50dp"/>
 
                 </TableRow>
