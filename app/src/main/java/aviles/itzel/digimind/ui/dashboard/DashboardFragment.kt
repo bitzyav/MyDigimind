@@ -21,20 +21,25 @@ import kotlin.collections.ArrayList
 
 class DashboardFragment : Fragment() {
 
+
     private lateinit var dashboardViewModel: DashboardViewModel
-    private lateinit var usuario: FirebaseAuth
     private lateinit var storage: FirebaseFirestore
+    private lateinit var usuario: FirebaseAuth
+
 
     override fun onCreateView(
-        inflater: LayoutInflater,
-        container: ViewGroup?,
-        savedInstanceState: Bundle?
+            inflater: LayoutInflater,
+            container: ViewGroup?,
+            savedInstanceState: Bundle?
     ): View? {
         dashboardViewModel =
-            ViewModelProviders.of(this).get(DashboardViewModel::class.java)
+                ViewModelProviders.of(this).get(DashboardViewModel::class.java)
         val root = inflater.inflate(R.layout.fragment_dashboard, container, false)
 
-        storage =  FirebaseFirestore.getInstance()
+        val btn_time: Button = root.findViewById(R.id.btn_time)
+
+
+        storage = FirebaseFirestore.getInstance()
         usuario = FirebaseAuth.getInstance()
 
         btn_time.setOnClickListener{
@@ -46,37 +51,25 @@ class DashboardFragment : Fragment() {
                 btn_time.text = SimpleDateFormat("HH:mm").format(cal.time)
             }
             TimePickerDialog(root.context, timeSetListener, cal.get(Calendar.HOUR_OF_DAY),
-                cal.get(Calendar.MINUTE), true).show()
+                    cal.get(Calendar.MINUTE), true).show()
 
         }
 
+        val btn_save = root.findViewById(R.id.btn_save) as Button
+        val et_titulo = root.findViewById(R.id.et_task) as EditText
+        val checkMonday = root.findViewById(R.id.checkMonday) as CheckBox
+        val checkTuesday = root.findViewById(R.id.checkTuesday) as CheckBox
+        val checkWednesday = root.findViewById(R.id.checkWednesday) as CheckBox
+        val checkThursday = root.findViewById(R.id.checkThursday) as CheckBox
+        val checkFriday = root.findViewById(R.id.checkFriday) as CheckBox
+        val checkSaturday = root.findViewById(R.id.checkSaturday) as CheckBox
+        val checkSunday = root.findViewById(R.id.checkSunday) as CheckBox
+
         btn_save.setOnClickListener{
 
-            var titulo = et_task.text.toString()
-            var time = btn_time.text.toString()
-
+            var titulo = et_titulo.text.toString()
+            var tiempo = btn_time.text.toString()
             var days = ArrayList<String>()
-            val actividad = hashMapOf(
-                    "actividad" to et_task.text.toString(),
-                    "email" to usuario.currentUser.email.toString(),
-                    "do" to checkSunday.isChecked,
-                    "lu" to checkMonday.isChecked,
-                    "ma" to checkTuesday.isChecked,
-                    "mi" to checkWednesday.isChecked,
-                    "ju" to checkThursday.isChecked,
-                    "vi" to checkFriday.isChecked,
-                    "sa" to checkSaturday.isChecked,
-                    "tiempo" to btn_time.toString()
-            )
-
-            storage.collection("actividades")
-                    .add(actividad)
-                    .addOnSuccessListener {
-                        Toast.makeText(root.context, "Task Agregada", Toast.LENGTH_SHORT).show()
-                    }
-                    .addOnFailureListener{
-                        Toast.makeText(root.context, "Error: intente de nuevo", Toast.LENGTH_SHORT).show()
-                    }
 
             if(checkMonday.isChecked)
                 days.add("Monday")
@@ -93,16 +86,38 @@ class DashboardFragment : Fragment() {
             if(checkSunday.isChecked)
                 days.add("Sunday")
 
-            var task = Task(titulo, days, time)
 
-            HomeFragment.tasks.add(task)
+            val actividad = hashMapOf(
+                    "actividad" to et_titulo.text.toString(),
+                    "email" to usuario.currentUser.email.toString(),
+                    "lu" to checkMonday.isChecked,
+                    "ma" to checkTuesday.isChecked,
+                    "mi" to checkWednesday.isChecked,
+                    "ju" to checkThursday.isChecked,
+                    "vi" to checkFriday.isChecked,
+                    "sa" to checkSaturday.isChecked,
+                    "do" to checkSunday.isChecked,
+                    "tiempo" to btn_time.text.toString()
+            )
 
-            Toast.makeText(root.context, "new task added", Toast.LENGTH_SHORT).show()
+            storage.collection("actividades")
+                    .add(actividad)
+                    .addOnSuccessListener {
+                        Toast.makeText(root.context, "Task agregada", Toast.LENGTH_SHORT).show()
+                        var task = Task(titulo, days, tiempo)
+                        HomeFragment.tasks.add(task)
+                    }
+                    .addOnFailureListener{
+                        Toast.makeText(root.context, it.toString(), Toast.LENGTH_SHORT).show()
+                    }
         }
 
 
         return root
     }
+
+
+
 
 
 }
